@@ -30,24 +30,24 @@ public class HashManager {
 		list.add(hash);
 	}
 
-	public ArrayList<ArrayList<String>> getPossibleDuplicates() {
-		ArrayList<ArrayList<String>> duplicates = new ArrayList<ArrayList<String>>();
+	public ArrayList<ArrayList<FileHash>> getPossibleDuplicates() {
+		ArrayList<ArrayList<FileHash>> duplicates = new ArrayList<ArrayList<FileHash>>();
 		for (ArrayList<FileHash> list : files.values()) {
 			if (list.size() > 1) {
 				FileHash[] items = list.toArray(new FileHash[list.size()]);
 				for (int i=0; i<items.length; i++) {
 					FileHash file1 = items[i];
 					if (file1 != null) {
-						ArrayList<String> dups = null;
+						ArrayList<FileHash> dups = null;
 						for (int j=i+1; j<items.length; j++) {
 							FileHash file2 = items[j];
-							if (file2 != null && file1.size == file2.size) {
+							if (file2 != null && file1.getSize() == file2.getSize()) {
 								if (dups == null) {
-									dups = new ArrayList<String>();
-									dups.add(file1.path.getAbsolutePath());
+									dups = new ArrayList<FileHash>();
+									dups.add(file1);
 								}
 								items[j] = null;
-								dups.add(file2.path.getAbsolutePath());
+								dups.add(file2);
 							}
 						}
 						if (dups != null) {
@@ -60,24 +60,24 @@ public class HashManager {
 		return duplicates;
 	}
 
-	public ArrayList<ArrayList<String>> getDuplicates() {
-		ArrayList<ArrayList<String>> duplicates = new ArrayList<ArrayList<String>>();
+	public ArrayList<ArrayList<FileHash>> getDuplicates() {
+		ArrayList<ArrayList<FileHash>> duplicates = new ArrayList<ArrayList<FileHash>>();
 		for (ArrayList<FileHash> list : files.values()) {
 			if (list.size() > 1) {
 				FileHash[] items = list.toArray(new FileHash[list.size()]);
 				for (int i=0; i<items.length; i++) {
 					FileHash file1 = items[i];
 					if (file1 != null) {
-						ArrayList<String> dups = null;
+						ArrayList<FileHash> dups = null;
 						for (int j=i+1; j<items.length; j++) {
 							FileHash file2 = items[j];
 							if (file2 != null && file1.equals(file2)) {
 								if (dups == null) {
-									dups = new ArrayList<String>();
-									dups.add(file1.path.getAbsolutePath());
+									dups = new ArrayList<FileHash>();
+									dups.add(file1);
 								}
 								items[j] = null;
-								dups.add(file2.path.getAbsolutePath());
+								dups.add(file2);
 							}
 						}
 						if (dups != null) {
@@ -90,22 +90,22 @@ public class HashManager {
 		return duplicates;
 	}
 
-	public ArrayList<ArrayList<String>> getFalseDuplicates() {
-		ArrayList<ArrayList<String>> duplicates = new ArrayList<ArrayList<String>>();
+	public ArrayList<ArrayList<FileHash>> getFalseDuplicates() {
+		ArrayList<ArrayList<FileHash>> duplicates = new ArrayList<ArrayList<FileHash>>();
 		for (ArrayList<FileHash> list : files.values()) {
 			if (list.size() > 1) {
 				FileHash[] items = list.toArray(new FileHash[list.size()]);
 				for (int i=0; i<items.length; i++) {
 					FileHash file1 = items[i];
-					ArrayList<String> dups = null;
+					ArrayList<FileHash> dups = null;
 					for (int j=i+1; j<items.length; j++) {
 						FileHash file2 = items[j];
-						if (file1.size == file2.size && !file1.equals(file2)) {
+						if (file1.getSize() == file2.getSize() && !file1.equals(file2)) {
 							if (dups == null) {
-								dups = new ArrayList<String>();
-								dups.add(file1.path.getAbsolutePath());
+								dups = new ArrayList<FileHash>();
+								dups.add(file1);
 							}
-							dups.add(file2.path.getAbsolutePath());
+							dups.add(file2);
 						}
 					}
 					if (dups != null) {

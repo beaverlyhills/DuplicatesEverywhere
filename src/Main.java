@@ -1,5 +1,7 @@
 import java.io.File;
+import java.util.ArrayList;
 
+import com.dkhromov.duplicates.FileHash;
 import com.dkhromov.duplicates.HashManager;
 
 
@@ -7,7 +9,7 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		System.out.print("Started\n");
+		System.err.print("Started\n");
 
 		HashManager mgr = new HashManager();
 		
@@ -15,21 +17,30 @@ public class Main {
 			walk(path, mgr);
 		}
 
-		System.out.println("Possible duplicates");
-		System.out.println(mgr.getPossibleDuplicates().toString());
+		System.out.println("* Possible duplicates");
+		printDuplicates(mgr.getPossibleDuplicates(), "? ");
 
-		System.out.println("Real duplicates");
-		System.out.println(mgr.getDuplicates().toString());
+		System.out.println("* Real duplicates (bit-exact copies)");
+		printDuplicates(mgr.getDuplicates(), "+ ");
 		
-		System.out.println("False duplicates");
-		System.out.println(mgr.getFalseDuplicates().toString());
+		System.out.println("* False duplicates (possibly corrupted copies)");
+		printDuplicates(mgr.getFalseDuplicates(), "- ");
+	}
+
+	public static void printDuplicates(ArrayList<ArrayList<FileHash>> duplicateTuples, String prefix) {
+		for (ArrayList<FileHash> hash : duplicateTuples) {
+			System.out.println(hash.size()+" files of "+hash.get(0).getSize()+" bytes");
+			for (FileHash fileHash : hash) {
+				System.out.println(prefix+fileHash.getPath());
+			}
+		}
 	}
 
 	public static void walk( String path, HashManager mgr ) {
 
 		File root = new File( path );
 		
-		System.out.println("Walk "+root.getAbsolutePath());
+		System.err.println("Walk "+root.getAbsolutePath());
 		
 		File[] list = root.listFiles();
 		
@@ -39,7 +50,7 @@ public class Main {
 			if ( f.isDirectory() ) {
 				walk( f.getAbsolutePath(), mgr );
 			} else {
-				System.out.println("Add "+f.getAbsolutePath());
+				System.err.println("Add "+f.getAbsolutePath());
 				mgr.addFile(f);
 			}
 		}

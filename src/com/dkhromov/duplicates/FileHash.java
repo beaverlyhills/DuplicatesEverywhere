@@ -16,14 +16,14 @@ public class FileHash {
 	public static byte[] smallBuffer = new byte[SMALL_HASH_SIZE];
 	public static byte[] largeBuffer = new byte[LARGE_HASH_SIZE];
 
-	File path;
+	private File path;
 	String shortHash;
 	ArrayList<String> longHash = new ArrayList<String>();
-	long size;
+	private long size;
 
 	public FileHash(File path) {
-		this.path = path;
-		size = path.length();
+		this.setPath(path);
+		setSize(path.length());
 		shortHash = createDigest(path, smallBuffer, 0, 1);
 	}
 	
@@ -49,7 +49,7 @@ public class FileHash {
 	public boolean equals(Object o) {
 		if (o instanceof FileHash) {
 			FileHash fo = (FileHash)o;
-			if (size == fo.size && shortHash.equals(fo.shortHash)) {
+			if (getSize() == fo.getSize() && shortHash.equals(fo.shortHash)) {
 				return compareLongHashes(fo);
 			}
 		}
@@ -63,7 +63,7 @@ public class FileHash {
 		if (longHash.size() < index) {
 			throw new RuntimeException("Invalid index");
 		}
-		String result = createDigest(path, largeBuffer, offset, counter);
+		String result = createDigest(getPath(), largeBuffer, offset, counter);
 		longHash.add(result);
 		return result;
 	}
@@ -72,7 +72,7 @@ public class FileHash {
 		int index = 0;
 		long offset = smallBuffer.length;
 		long counter = 1;
-		while (offset < size) {
+		while (offset < getSize()) {
 			String hash1 = this.getLongHash(index, offset, counter);
 			String hash2 = fo.getLongHash(index, offset, counter);
 			if (!hash1.equals(hash2)) {
@@ -99,6 +99,22 @@ public class FileHash {
 	
 	@Override
 	public String toString() {
-		return path.getAbsolutePath()+" "+shortHash+" "+longHash.toString();
+		return getPath().getAbsolutePath()+" "+shortHash+" "+longHash.toString();
+	}
+
+	public long getSize() {
+		return size;
+	}
+
+	public void setSize(long size) {
+		this.size = size;
+	}
+
+	public File getPath() {
+		return path;
+	}
+
+	public void setPath(File path) {
+		this.path = path;
 	}
 }
