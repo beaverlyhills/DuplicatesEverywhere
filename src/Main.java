@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.dkhromov.duplicates.FileHash;
@@ -12,15 +13,16 @@ public class Main {
 		System.err.print("Started\n");
 
 		HashManager mgr = new HashManager();
-		
+
 		boolean flagMaster = false;
 		boolean flagDupsOnly = false;
 		boolean flagPossible = false;
 		boolean flagReal = false;
 		boolean flagFalse = false;
 		boolean flagAll = true;
+		boolean flagSymlinks = false;
 		File masterPath = null;
-		
+
 		int arg = 0;
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equals("-m")) {
@@ -41,8 +43,10 @@ public class Main {
 				flagPossible = true;
 				flagReal = true;
 				flagFalse = true;
+			} else if (args[i].equals("-l")) {
+				flagSymlinks = true;
 			} else {
-				walk(args[i], mgr, flagMaster && (arg++ > 0));
+				walk(args[i], mgr, flagMaster && (arg++ > 0), flagSymlinks);
 				if (flagMaster && arg == 1) {
 					if (flagDupsOnly) {
 						masterPath = new File(args[i]);
@@ -61,7 +65,7 @@ public class Main {
 			System.out.println("* Real duplicates (bit-exact copies)");
 			printDuplicates(mgr.getDuplicates(), "+ ", masterPath);
 		}
-		
+
 		if (flagFalse || flagAll) {
 			System.out.println("* False duplicates (possibly corrupted copies)");
 			printDuplicates(mgr.getFalseDuplicates(), "- ", masterPath);
@@ -72,7 +76,7 @@ public class Main {
 		for (ArrayList<FileHash> hash : duplicateTuples) {
 			System.out.println(hash.size()+" files of "+hash.get(0).getSize()+" bytes");
 			for (FileHash fileHash : hash) {
-				if (master == null || fileHash.getPath().getAbsolutePath().startsWith(master.getAbsolutePath())) {
+				if (master == null || !fileHash.getPath().getAbsolutePath().startsWith(master.getAbsolutePath())) {
 					System.out.println(prefix+fileHash.getPath());
 				}
 			}
@@ -80,25 +84,27 @@ public class Main {
 	}
 
 	public static ArrayList<String> directories = new ArrayList<String>();
-	
-	public static void walk( String path, HashManager mgr, boolean appendOnly ) {
+
+	public static void walk( String path, HashManager mgr, boolean appendOnly, boolean followSymlinks ) {
 
 		File root = new File( path );
-		
+
 		System.err.println("Walk "+root.getAbsolutePath());
-		
+
 		File[] list = root.listFiles();
-		
+
 		if (list == null) return;
 
 		for ( File f : list ) {
 			String p = f.getAbsolutePath();
 			try {
-				if ( f.isDirectory() ) {
+				if ( !followSymlinks && isSymlink(f) ) {
+					continue;
+				} else if ( f.isDirectory() ) {
 					if (directories.contains(p)) {
 						continue;
 					}
-					walk( p, mgr, appendOnly );
+					walk( p, mgr, appendOnly, followSymlinks );
 					directories.add(p);
 				} else {
 					System.err.println("Add "+p);
@@ -110,4 +116,17 @@ public class Main {
 		}
 	}
 
+	// From Apache Commons
+	public static boolean isSymlink(File file) throws IOException {
+		if (file == null)
+			throw new NullPointerException("File must not be null");
+		File canon;
+		if (file.getParent() == null) {
+			canon = file;
+		} else {
+			File canonDir = file.getParentFile().getCanonicalFile();
+			canon = new File(canonDir, file.getName());
+		}
+		return !canon.getCanonicalFile().equals(canon.getAbsoluteFile());
+	}
 }
