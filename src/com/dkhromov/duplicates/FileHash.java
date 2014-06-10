@@ -22,12 +22,12 @@ public class FileHash {
 	private long size;
 
 	public FileHash(File path) {
-		this.setPath(path);
-		setSize(path.length());
-		shortHash = createDigest(path, smallBuffer, 0, 1);
+		this.path = path;
+		this.size = path.length();
+		this.shortHash = createDigest(path, smallBuffer, 0, 1);
 	}
 	
-	private String createDigest(File f, byte[] buf, long offset, long counter) {
+	protected String createDigest(File f, byte[] buf, long offset, long counter) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			InputStream is = new FileInputStream(f);
@@ -56,7 +56,7 @@ public class FileHash {
 		return false;
 	}
 
-	private String getLongHash(int index, long offset, long counter) {
+	protected String getLongHash(int index, long offset, long counter) {
 		if (longHash.size() > index) {
 			return longHash.get(index);
 		}
@@ -68,7 +68,7 @@ public class FileHash {
 		return result;
 	}
 	
-	private boolean compareLongHashes(FileHash fo) {
+	protected boolean compareLongHashes(FileHash fo) {
 		int index = 0;
 		long offset = smallBuffer.length;
 		long counter = 1;
@@ -106,15 +106,7 @@ public class FileHash {
 		return size;
 	}
 
-	public void setSize(long size) {
-		this.size = size;
-	}
-
 	public File getPath() {
 		return path;
-	}
-
-	public void setPath(File path) {
-		this.path = path;
 	}
 }
