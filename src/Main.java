@@ -26,24 +26,31 @@ public class Main {
 		int arg = 0;
 		for (int i=0; i<args.length; i++) {
 			if (args[i].equals("-m")) {
+				// Treat first path as master and match all other paths against it
 				flagMaster = true;
 			} else if (args[i].equals("-M")) {
+				// Treat first path as master and exclude it from duplicate output
 				flagMaster = true;
 				flagDupsOnly = true;
 			} else if (args[i].equals("-p")) {
+				// Show only possible duplicates (quick match)
 				flagPossible = true;
 				flagAll = false;
 			} else if (args[i].equals("-r")) {
+				// Show only real duplicates (slow match)
 				flagReal = true;
 				flagAll = false;
 			} else if (args[i].equals("-f")) {
+				// Show only false duplicates (quick matched, but not bit-exact)
 				flagFalse = true;
 				flagAll = false;
 			} else if (args[i].equals("-a")) {
+				// Show all duplicates (possible, real and false)
 				flagPossible = true;
 				flagReal = true;
 				flagFalse = true;
 			} else if (args[i].equals("-l")) {
+				// Follow symlinks
 				flagSymlinks = true;
 			} else {
 				walk(args[i], mgr, flagMaster && (arg++ > 0), flagSymlinks);
